@@ -131,7 +131,9 @@ class _PersonOverviewScreenState extends ConsumerState<PersonOverviewScreen> {
             child: Column(
               children: [
                 DetailBuilder("Doğum Tarihi", getDateWithDay(thePerson.birthDate)),
-                DetailBuilder("Burç", "${thePerson.zodiacSign.turName} (${thePerson.zodiacSign.engName})")
+                DetailBuilder("Burç", "${thePerson.zodiacSign.turName} (${thePerson.zodiacSign.engName})"),
+                if(thePerson.notes != null)
+                  DetailBuilder("Notlar", thePerson.notes!)
               ],
             )
           ),

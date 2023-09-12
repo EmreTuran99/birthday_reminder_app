@@ -152,7 +152,7 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
       birthDate: birthDate,
       avatarPath: saveUserCtrl.isAvatarMale ? maleAvatarPath : femaleAvatarPath,
       zodiacSign: ZodiacSignExtension.getZodiacSignFromDate(saveUserCtrl.selectedBirthDate!),
-      notes: null,
+      notes: saveUserCtrl.ctrlNotes.text.isEmpty ? null : saveUserCtrl.ctrlNotes.text,
       nextBirthDate: Person.findNextBirthate(birthDate)
     );
 
@@ -290,6 +290,25 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
     );
   }
 
+  Widget NotesTextField(){
+
+    return TextFieldWithIcon(
+      Icons.notes_rounded,
+      TextFormField(
+        controller: SaveUserController.of(context).ctrlNotes,
+        textInputAction: TextInputAction.done,
+        keyboardType: TextInputType.text,
+        maxLines: 1,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 4),
+          border: UnderlineInputBorder(),
+          isDense: true,
+          hintText: "Notlar",
+        ),
+      )
+    );
+  }
+
   Widget TextFieldWithIcon(IconData iconData, Widget textFormField){
 
     return Row(
@@ -304,45 +323,23 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
     );
   }
 
-  Widget SaveButton(){
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: ElevatedButton(
-        onPressed: () {
-          savePerson();
-        },
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size.fromWidth(screenSize.width),
-          backgroundColor: appBarPink,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        child: Text(
-          "KAYDET",
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontFamily: TextFonts.nunitoSans.fontName
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: appBarPink,
+        backgroundColor: Colors.white,
         automaticallyImplyLeading: true,
+        foregroundColor: Colors.black,
+        centerTitle: false,
+        titleSpacing: 0,
+        elevation: 0,
         title: Text(
           "Yeni Kişi Ekle",
           style: TextStyle(
             fontSize: 20,
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontFamily: TextFonts.nunitoSans.fontName,
           ),
@@ -354,7 +351,7 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
             },
             icon: const Icon(
               Icons.save,
-              color: Colors.white,
+              color: Colors.black,
               size: 24,
             ),
           )
@@ -374,9 +371,9 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
               VerticalSpace(24),
               BirthdateTextField(),
               VerticalSpace(24),
-              const Spacer(),
-              SaveButton(),
+              NotesTextField(),
               VerticalSpace(24),
+              const Spacer(),
             ],
           ),
         ),

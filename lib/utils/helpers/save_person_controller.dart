@@ -10,11 +10,11 @@ class SaveUserController extends InheritedWidget {
 
   final TextEditingController ctrlFullname = TextEditingController();
   final TextEditingController ctrlBirthdate = TextEditingController();
+  final TextEditingController ctrlNotes = TextEditingController();
 
   DateTime? selectedBirthDate;
   bool isAvatarMale = true;
   
-
   final GlobalKey<FormState> saveUserFormKey = GlobalKey<FormState>();
 
   @override
