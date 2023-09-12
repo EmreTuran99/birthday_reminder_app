@@ -7,6 +7,7 @@ import 'package:birthday_app/utils/methods.dart';
 import 'package:birthday_app/utils/providers.dart';
 import 'package:birthday_app/utils/services/local_notif_service.dart';
 import 'package:birthday_app/utils/styling.dart';
+import 'package:birthday_app/utils/values.dart';
 import 'package:birthday_app/widgets/failure_snackbar.dart';
 import 'package:birthday_app/widgets/horizontal_space.dart';
 import 'package:birthday_app/widgets/success_snackbar.dart';
@@ -26,8 +27,6 @@ class AddPersonScreen extends ConsumerStatefulWidget {
 class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
 
   late Size screenSize;
-  String maleAvatarPath = "assets/images/male.jpeg";
-  String femaleAvatarPath = "assets/images/female.jpeg";
 
   @override
   void initState() {

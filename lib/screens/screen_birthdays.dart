@@ -2,19 +2,21 @@
 import 'package:birthday_app/database/birthdaysDB.dart';
 import 'package:birthday_app/models/person.dart';
 import 'package:birthday_app/screens/screen_add_person.dart';
+import 'package:birthday_app/screens/screen_person_overview.dart';
 import 'package:birthday_app/utils/enums.dart';
 import 'package:birthday_app/utils/helpers/save_person_controller.dart';
+import 'package:birthday_app/utils/methods.dart';
 import 'package:birthday_app/utils/providers.dart';
 import 'package:birthday_app/utils/services/local_notif_service.dart';
 import 'package:birthday_app/utils/styling.dart';
 import 'package:birthday_app/widgets/failure_snackbar.dart';
 import 'package:birthday_app/widgets/success_snackbar.dart';
 import 'package:birthday_app/widgets/vertical_space.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
 class BirthdaysScreen extends ConsumerStatefulWidget {
@@ -62,17 +64,6 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
     if(mounted){
       setState(() {});
     }
-  }
-
-  String getInfoText(Person person){
-
-    int newAge = person.nextBirthDate!.year - person.birthDate.year;
-    if(DateTime.now().month == person.birthDate.month && DateTime.now().day == person.birthDate.day){
-      return "Bugün $newAge yaşına girdi";
-    }
-
-    String formattedPart = DateFormat('d MMMM, EEEE', 'tr').format(person.nextBirthDate!);
-    return "$formattedPart günü $newAge yaşına giriyor";
   }
 
   String getRemainingTimeText(Person person){
@@ -165,20 +156,6 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       child: Slidable(
                         key: ValueKey(person.personID),
-                        startActionPane: ActionPane(
-                          extentRatio: 0.3,
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: null,
-                              backgroundColor: Colors.orange.shade700,
-                              foregroundColor: Colors.white,
-                              icon: Icons.edit,
-                              label: "Düzenle",
-                              borderRadius: BorderRadius.circular(4),
-                            )
-                          ],
-                        ),
                         endActionPane: ActionPane(
                           extentRatio: 0.3,
                           motion: const ScrollMotion(),
@@ -226,13 +203,19 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
                           ),
                           child: ListTile(
                             dense: true,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (context) => PersonOverviewScreen(person))
+                              );
+                            },
                             onLongPress: () async {
 
-                              var pendings = await LocalNotifService.instance.getPendingNotifs();
-                              for (var pending in pendings) {
-                                print(pending.payload);
+                              if(kDebugMode){
+                                var pendings = await LocalNotifService.instance.getPendingNotifs();
+                                for (var pending in pendings) {
+                                  print(pending.payload);
+                                }
                               }
-                              //print(pendings.first.body);
                             },
                             horizontalTitleGap: 12,
                             minLeadingWidth: 0,
@@ -254,7 +237,7 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
                               ),
                             ),
                             subtitle: Text(
-                              getInfoText(person),
+                              getBirthDayInfoText(person),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade800,
@@ -293,13 +276,13 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         elevation: 10,
-        backgroundColor: Colors.white,
+        backgroundColor: appBarPink,
         automaticallyImplyLeading: false,
         centerTitle: false,
         title: Text(
           "Birthdays",
           style: TextStyle(
-            color: appBarPink,
+            color: Colors.white,
             fontSize: 32,
             fontWeight: FontWeight.bold,
             fontFamily: TextFonts.meowScript.fontName
@@ -314,26 +297,13 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
             },
             icon: const Icon(
               Icons.add,
-              color: appBarPink,
+              color: Colors.white,
               size: 28,
             ),
           )
         ],
       ),
       body: ScreenBody(),
-      /* floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => SaveUserController(child: const AddPersonScreen()))
-          );
-        },
-        backgroundColor: appBarPink,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 32,
-        ),
-      ), */
     );
   }
 }
