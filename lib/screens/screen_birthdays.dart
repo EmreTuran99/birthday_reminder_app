@@ -240,7 +240,7 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
                                 fontFamily: TextFonts.nunitoSans.fontName
                               ),
                             ),
-                            trailing: DateTime.now().month == person.birthDate.month && DateTime.now().day == person.birthDate.day ? Icon(Icons.cake, color: Colors.yellow.shade700,): Text(
+                            trailing: Person.isTodayBirthday(person) ? Icon(Icons.cake, color: Colors.yellow.shade700,): Text(
                               getRemainingTimeText(person),
                               style: TextStyle(
                                 fontSize: 12,
@@ -267,7 +267,7 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
   
   BoxShadow getBoxShadow(Person person){
     
-    if(DateTime.now().month == person.birthDate.month && DateTime.now().day == person.birthDate.day){
+    if(Person.isTodayBirthday(person)){
       return BoxShadow(
         color: Colors.yellow.shade700,
         blurRadius: 5,
@@ -305,7 +305,7 @@ class _BirthdaysScreenState extends ConsumerState<BirthdaysScreen> {
           IconButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SaveUserController(child: const AddPersonScreen()))
+                MaterialPageRoute(builder: (context) => SaveUserController(child: AddPersonScreen(screenMode: ScreenMode.create,)))
               );
             },
             icon: const Icon(

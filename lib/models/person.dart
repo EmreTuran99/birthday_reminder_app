@@ -116,6 +116,12 @@ class Person {
       return nextBirthDate;
     }
   }
+
+  static bool isTodayBirthday(Person person){
+
+    return (DateTime.now().month == person.birthDate.month) && 
+      (DateTime.now().day == person.birthDate.day);
+  }
 }
 
 class PersonNotifier extends StateNotifier<List<Person>> {

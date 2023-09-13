@@ -10,7 +10,7 @@ String formattedBirthDate(DateTime dateTime){
 String getBirthDayInfoText(Person person){
 
   int newAge = person.nextBirthDate!.year - person.birthDate.year;
-  if(DateTime.now().month == person.birthDate.month && DateTime.now().day == person.birthDate.day){
+  if(Person.isTodayBirthday(person)){
     return "Bugün $newAge yaşına girdi";
   }
 

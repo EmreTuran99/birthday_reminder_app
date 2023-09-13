@@ -18,7 +18,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AddPersonScreen extends ConsumerStatefulWidget {
-  const AddPersonScreen({super.key});
+
+  ScreenMode screenMode;
+  Person? personToEdit;
+  AddPersonScreen({required this.screenMode, this.personToEdit, super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _AddPersonScreenState();
@@ -38,6 +41,13 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     screenSize = MediaQuery.of(context).size;
+
+    if(widget.screenMode == ScreenMode.update){
+      SaveUserController.of(context).ctrlFullname.text = widget.personToEdit!.fullname;
+      SaveUserController.of(context).ctrlBirthdate.text = formattedBirthDate(widget.personToEdit!.birthDate);
+      SaveUserController.of(context).ctrlNotes.text = widget.personToEdit!.notes ?? "";
+      SaveUserController.of(context).isAvatarMale = widget.personToEdit!.avatarPath == maleAvatarPath;
+    }
   }
 
   Future<bool> notifWarning() async {
@@ -172,6 +182,75 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
         print(exp);
       }
       ref.read(personNotifierProvider.notifier).addPersonToList(personToSave.copyWith(personID: personID));
+      messengerState..clearSnackBars()..showSnackBar(
+        SuccessSnackbar("Kişi kaydedildi!")
+      );
+      navState.pop();
+    }
+    else{
+      messengerState..clearSnackBars()..showSnackBar(
+        FailureSnackbar("Hata meydana geldi!")
+      );
+    }
+  }
+
+  Future<void> updatePerson() async {
+
+    bool isValid = SaveUserController.of(context).saveUserFormKey.currentState?.validate() ?? false;
+
+    if(!isValid){
+      return;
+    }
+
+    NavigatorState navState = Navigator.of(context);
+    ScaffoldMessengerState messengerState = ScaffoldMessenger.of(context);
+
+    SaveUserController saveUserCtrl = SaveUserController.of(context);
+    DateTime birthDate = saveUserCtrl.selectedBirthDate!;
+
+    var notifPermStatus = await Permission.notification.request();
+
+    print(notifPermStatus);
+
+    if(notifPermStatus.isPermanentlyDenied || notifPermStatus.isDenied){
+      // show user warning
+      /* bool shouldContinue = await notifWarning();
+      if(!shouldContinue){
+        return;
+      } */
+    }
+    else{
+      // permission granted, no problem
+    }
+
+    Person personToSave = Person(
+      personID: widget.personToEdit!.personID,
+      fullname: saveUserCtrl.ctrlFullname.text,
+      birthDate: birthDate,
+      avatarPath: saveUserCtrl.isAvatarMale ? maleAvatarPath : femaleAvatarPath,
+      zodiacSign: ZodiacSignExtension.getZodiacSignFromDate(saveUserCtrl.selectedBirthDate!),
+      notes: saveUserCtrl.ctrlNotes.text.isEmpty ? null : saveUserCtrl.ctrlNotes.text,
+      nextBirthDate: Person.findNextBirthate(birthDate)
+    );
+
+    LocalNotifService.instance.cancelScheduledNotification(personToSave.personID!);
+    bool updateRes = await BirthdaysDB.instance.updatePerson(personToSave.personID!, personToSave);
+
+    if(updateRes){
+      try{
+        LocalNotifService.instance.setScheduledNotifs(
+          personToSave.personID!,
+          "Pastayı ve hediyeleri hazırlayın!",
+          "Bugün ${saveUserCtrl.ctrlFullname.text} adlı kişinin doğum günü!",
+          Person.findNextBirthate(birthDate).toIso8601String(),
+          scheduledDate: Person.findNextBirthate(birthDate),
+        );
+        print("notif created");
+      }
+      catch(exp){
+        print(exp);
+      }
+      ref.read(personNotifierProvider.notifier).updatePersonInList(personToSave);
       messengerState..clearSnackBars()..showSnackBar(
         SuccessSnackbar("Kişi kaydedildi!")
       );
@@ -336,7 +415,7 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
         titleSpacing: 0,
         elevation: 0,
         title: Text(
-          "Yeni Kişi Ekle",
+          widget.screenMode == ScreenMode.update ? "Kişi Düzenle" : "Yeni Kişi Ekle",
           style: TextStyle(
             fontSize: 20,
             color: Colors.black,
@@ -346,11 +425,9 @@ class _AddPersonScreenState extends ConsumerState<AddPersonScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              savePerson();
-            },
-            icon: const Icon(
-              Icons.save,
+            onPressed: ()=> widget.screenMode == ScreenMode.update ? updatePerson() : savePerson(),
+            icon: Icon(
+              widget.screenMode == ScreenMode.update ? Icons.done : Icons.save,
               color: Colors.black,
               size: 24,
             ),

@@ -13,6 +13,11 @@ enum LoadingStatus {
   succeeded
 }
 
+enum ScreenMode {
+  create,
+  update
+}
+
 enum ZodiacSign {
 
   aries("Aries", "Koç"),

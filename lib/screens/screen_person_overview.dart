@@ -1,7 +1,9 @@
 
 import 'package:birthday_app/database/birthdaysDB.dart';
 import 'package:birthday_app/models/person.dart';
+import 'package:birthday_app/screens/screen_add_person.dart';
 import 'package:birthday_app/utils/enums.dart';
+import 'package:birthday_app/utils/helpers/save_person_controller.dart';
 import 'package:birthday_app/utils/methods.dart';
 import 'package:birthday_app/utils/providers.dart';
 import 'package:birthday_app/utils/services/local_notif_service.dart';
@@ -61,6 +63,20 @@ class _PersonOverviewScreenState extends ConsumerState<PersonOverviewScreen> {
     );
   }
 
+  void editPerson() {
+
+    Navigator.of(context).pop();
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => SaveUserController(
+        child: AddPersonScreen(
+          screenMode: ScreenMode.update,
+          personToEdit: thePerson
+        )
+      ))
+    );
+  }
+
   Future<void> deletePerson() async {
 
     ScaffoldMessengerState messengerState = ScaffoldMessenger.of(context);
@@ -105,7 +121,7 @@ class _PersonOverviewScreenState extends ConsumerState<PersonOverviewScreen> {
             ListTile(
               horizontalTitleGap: 0,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              onTap: null, // TODO: implement edit person
+              onTap: () => editPerson(),
               leading: const Icon(Icons.edit, color: Colors.black,),
               title: Text(
                 "Düzenle", 
@@ -222,6 +238,7 @@ class _PersonOverviewScreenState extends ConsumerState<PersonOverviewScreen> {
                           fontFamily: TextFonts.nunitoSans.fontName
                         ),
                       ),
+                      trailing: Person.isTodayBirthday(thePerson) ? Icon(Icons.cake, color: Colors.yellow.shade700,) : null,
                     )
                   )
                 ],

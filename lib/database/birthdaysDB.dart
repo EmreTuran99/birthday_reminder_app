@@ -87,6 +87,24 @@ class BirthdaysDB {
     return people;
   }
 
+  Future<bool> updatePerson(int personID, Person personToEdit) async {
+    final db = await instance.database;
+
+    try{
+      int res = await db.update(
+        "People",
+        personToEdit.toMap(),
+        where: "person_id = ?",
+        whereArgs: [personID]
+      );
+    }
+    catch(exp){
+      return false;
+    }
+
+    return true;
+  }
+
   Future<bool> deletePersonFromDB(int personID) async {
     final db = await instance.database;
 
